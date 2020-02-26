@@ -1,12 +1,12 @@
 {
-    "fabric_cfg_path": "privacytracker/fixtures/crypto-config/peerOrganizations/",
+    "fabric_cfg_path": "exampleledger/fixtures/crypto-config/peerOrganizations/",
     "msp_id": "Org1MSP",
     "msp_type": "bccsp",    
-    "msp_config_dir": "org1.privacy.tracker.com/users/Admin@org1.privacy.tracker.com/msp",
-    "client_key": "org1.privacy.tracker.com/peers/peer0.org1.privacy.tracker.com/tls/server.key",
-    "client_cert": "org1.privacy.tracker.com/peers/peer0.org1.privacy.tracker.com/tls/server.crt",
-    "root_cert": "org1.privacy.tracker.com/peers/peer0.org1.privacy.tracker.com/tls/ca.crt",
-    "server": "peer0.org1.privacy.tracker.com:7051",
-    "channel_id": "privacytracker",
+    "msp_config_dir": "org1.example.ledger.com/users/Admin@org1.example.ledger.com/msp",
+    "client_key": "org1.example.ledger.com/peers/peer0.org1.example.ledger.com/tls/server.key",
+    "client_cert": "org1.example.ledger.com/peers/peer0.org1.example.ledger.com/tls/server.crt",
+    "root_cert": "org1.example.ledger.com/peers/peer0.org1.example.ledger.com/tls/ca.crt",
+    "server": "peer0.org1.example.ledger.com:7051",
+    "channel_id": "exampleledger",
     "config_file": "configtx"
 }
