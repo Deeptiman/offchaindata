@@ -1,6 +1,6 @@
-<h1>OffChainData</h1>
+<h1>OffChain Data</h1>
 <p><a href="https://www.hyperledger.org/projects/fabric"><img src="https://www.hyperledger.org/wp-content/uploads/2016/09/logo_hl_new.png" alt="N|Solid"></a></p>
-<p><b>OffChainData</b> is a sample demonstration to understand the concept of implmenting offchain storage and it's capability in Hyperledger fabric Blockchain network.
+<p><b>OffChain Data</b> is a sample demonstration to understand the concept of implmenting offchain storage and it's capability in Hyperledger fabric Blockchain network.
  So, this project will work as a peer block event listener and will store the block details in the <b>CouchDB</b> that be query through <b>MapReduce</b>.</p>
  
  <h2>Configuration requirements</h2>
