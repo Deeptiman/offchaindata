@@ -38,15 +38,15 @@ will listen the `KVWriteSet` to store in the couchdb.
 ``````````````````````````````````````````````````````````````````````````````````````````````````````````````````
 type SampleUser struct {
 	Email 	  string 		`json:"email"`	
-	Name 	    string 		`json:"name"`
-	Age		    string		`json:"age"`
+	Name 	  string 		`json:"name"`
+	Age	  string		`json:"age"`
 	Country   string		`json:"country"`
  }
 ``````````````````````````````````````````````````````````````````````````````````````````````````````````````````
 
 <h2>Configure MapReduce</h2>
 
-<p><b>MapReduce</b> will query the offchain data from `CouchDB`. So, you need to configure MapReduce for certain design element from CouchDB collection.</p>
+<p><b>MapReduce</b> will query the offchain data from <b>CouchDB</b>. So, you need to configure MapReduce for certain design element from CouchDB collection.</p>
 
 <b>Configure MapReduce for Email</b>
 ````````````````````````````````````````````````````````````````````````````````````````````````````````````````
