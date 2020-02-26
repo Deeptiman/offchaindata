@@ -1,0 +1,12 @@
+{
+    "fabric_cfg_path": "privacytracker/fixtures/crypto-config/peerOrganizations/",
+    "msp_id": "Org1MSP",
+    "msp_type": "bccsp",    
+    "msp_config_dir": "org1.privacy.tracker.com/users/Admin@org1.privacy.tracker.com/msp",
+    "client_key": "org1.privacy.tracker.com/peers/peer0.org1.privacy.tracker.com/tls/server.key",
+    "client_cert": "org1.privacy.tracker.com/peers/peer0.org1.privacy.tracker.com/tls/server.crt",
+    "root_cert": "org1.privacy.tracker.com/peers/peer0.org1.privacy.tracker.com/tls/ca.crt",
+    "server": "peer0.org1.privacy.tracker.com:7051",
+    "channel_id": "privacytracker",
+    "config_file": "configtx"
+}
