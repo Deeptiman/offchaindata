@@ -231,10 +231,8 @@ func(grpc *GRPCClient) ReadEventStream() error{
 
 func ReadConfigs() error {
 
-	//ROOT := os.Getenv("GOPATH")
-
-	ROOT := "/home/harald/go/src/github.com/"
-
+	ROOT := os.Getenv("GOPATH")
+	
 	configFile, err := os.Open("config.json")
 	if err != nil {
 		return errors.WithMessage(err, "failed to read config json")
