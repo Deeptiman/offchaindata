@@ -15,7 +15,6 @@ import (
 	"github.com/hyperledger/fabric/common/localmsp"
 	"github.com/hyperledger/fabric/protos/peer"
 	"github.com/hyperledger/fabric/protos/orderer"
-	//"github.com/hyperledger/fabric/common/tools/protolator"
 	common2 "github.com/hyperledger/fabric/peer/common"
 	"github.com/hyperledger/fabric/protos/common"
 	"github.com/hyperledger/fabric/protos/utils"
@@ -48,13 +47,7 @@ var (
 	config_file			string	
 )
 
-const (
-	ROOT = "/home/harald/go/src/github.com/"
-)
-
 func InitClientConfigs() (comm.ClientConfig,error) {
-
-	fmt.Println("Init Client Configs ")
 
 	err := ReadConfigs()
 	if err != nil {
@@ -67,15 +60,11 @@ func InitClientConfigs() (comm.ClientConfig,error) {
 		return comm.ClientConfig{}, errors.WithMessage(err, "fatal error when initializing config")
 	}
 
-	fmt.Println("Init Config Successfully")
-
 	/* Initialize Crypto */
 	err = common2.InitCrypto(msp_config_dir, msp_id, msp_type)
 	if err != nil { 
 		return comm.ClientConfig{}, errors.WithMessage(err, "Cannot run client because")
 	}
-
-	fmt.Println("Init Crypto Successfully")
 
 	/* Init Client Configs */
 	clientConfig := comm.ClientConfig{
@@ -84,30 +73,32 @@ func InitClientConfigs() (comm.ClientConfig,error) {
 		Timeout: 5 * time.Minute,
 	}
 
-		clientConfig.SecOpts.UseTLS = true
-		clientConfig.SecOpts.RequireClientCert = true
+	clientConfig.SecOpts.UseTLS = true
+	clientConfig.SecOpts.RequireClientCert = true
 	
-		rootCert, err := ioutil.ReadFile(root_cert)
-		if err != nil {
-			return comm.ClientConfig{}, errors.WithMessage(err, "Error loading TLS root certificate")
-		}
-		clientConfig.SecOpts.ServerRootCAs = [][]byte{rootCert}
+	rootCert, err := ioutil.ReadFile(root_cert)
+	if err != nil {
+		return comm.ClientConfig{}, errors.WithMessage(err, "Error loading TLS root certificate")
+	}
+	clientConfig.SecOpts.ServerRootCAs = [][]byte{rootCert}
 
 	
-		clientKey, err := ioutil.ReadFile(client_key)
-		if err != nil {
-			return comm.ClientConfig{}, errors.WithMessage(err, "Error loading client TLS key")
-		}
-		clientConfig.SecOpts.Key = clientKey
+	clientKey, err := ioutil.ReadFile(client_key)
+	if err != nil {
+		return comm.ClientConfig{}, errors.WithMessage(err, "Error loading client TLS key")
+	}
+	clientConfig.SecOpts.Key = clientKey
 
-		clientCert, err := ioutil.ReadFile(client_cert)
-		if err != nil {
-			return comm.ClientConfig{}, errors.WithMessage(err, "Error loading client TLS cert")
-		}
-		clientConfig.SecOpts.Certificate = clientCert
+	clientCert, err := ioutil.ReadFile(client_cert)
+	if err != nil {
+		return comm.ClientConfig{}, errors.WithMessage(err, "Error loading client TLS cert")
+	}
+	clientConfig.SecOpts.Certificate = clientCert
+
+
+	fmt.Println(" Crypto & Client Configs initialized Successfully!")
 
 	return clientConfig, nil
-
 }
 
 
@@ -128,6 +119,8 @@ func InitGRPCClient(clientConfig comm.ClientConfig) (*GRPCClient, error){
 	signer := localmsp.NewSigner()
 	tlsCertHash := util.ComputeSHA256(grpcClient.Certificate().Certificate[0])	
 
+	fmt.Println(" GRPC Client initialized Successfully!")
+
 	return &GRPCClient {
 		grpcClient: grpcClient,
 		grpcClientConn: grpcClientConn,
@@ -137,28 +130,25 @@ func InitGRPCClient(clientConfig comm.ClientConfig) (*GRPCClient, error){
 }
 
 
-func(grpc *GRPCClient) InitDeliveryClient(filtered bool) (error){
-
+func(grpc *GRPCClient) InitDeliveryClient() (error){
 
 	deliverClient := peer.NewDeliverClient(grpc.grpcClientConn)
-
 	if deliverClient == nil {
 		return errors.New("No Host Available")
 	}
 
 	var err error
 	var deliveryClient DeliveryClient
-	if filtered {
-		deliveryClient, err = deliverClient.DeliverFiltered(context.Background()) 
-	} else {
-		deliveryClient, err = deliverClient.Deliver(context.Background())
-	}
-
+	
+	deliveryClient, err = deliverClient.Deliver(context.Background())
 	if err != nil {
 		return errors.WithMessage(err, "failed to connect")
 	}
 
 	grpc.deliveryClient = deliveryClient
+
+	fmt.Println(" GRPC Delivery Client initialized Successfully!")
+
 	return nil
 }
 
@@ -170,11 +160,10 @@ func(grpc *GRPCClient) CreateEventStream() error{
 	}
 
 	err = grpc.deliveryClient.Send(envelope)
-
 	if err != nil {
 		return errors.WithMessage(err, "Error in delivering the signed envelope")
 	}
-
+	fmt.Println(" GRPC Event Stream created Successfully!")
 	return nil
 }
 
@@ -204,11 +193,18 @@ func(grpc *GRPCClient) CreateSignedEnvelope() (*common.Envelope,error) {
 	if err != nil {
 		return nil, errors.WithMessage(err, "Error creating signed envelope")
 	}
+
+	fmt.Println(" Signed Envelope Created ")
+	fmt.Println(" Seek Info Start = ", start)
+	fmt.Println(" Seek Info Stop = ", stop)
+
 	return env, nil
 }
 
 
 func(grpc *GRPCClient) ReadEventStream() error{
+
+	fmt.Println(" \n Started listening GRPC Event Stream at ", server)
 
 	for {
 
@@ -220,29 +216,11 @@ func(grpc *GRPCClient) ReadEventStream() error{
 		switch t := receivedMsg.Type.(type) {
 
 			case *peer.DeliverResponse_Status:
-				fmt.Println("Block Status ",t)
-				//return nil
-			case *peer.DeliverResponse_Block:
+				fmt.Println(" Received DeliverResponse Status = ", t)
+			case *peer.DeliverResponse_Block:				
+				fmt.Println(" Received a new Block from = ",channel_id)
+				ReadBlock(t.Block)			
 				
-				fmt.Println(" Read Block --")
-				ReadBlock(t.Block)
-				
-				/*err = protolator.DeepMarshalJSON(os.Stdout, t.Block)
-				if err != nil {
-					return errors.WithMessage(err, "  Error pretty printing block")
-				}*/
-
-				//return nil
-			case *peer.DeliverResponse_FilteredBlock:
-				
-				fmt.Println(" Read Filter Block --")
-				//ReadBlock(t.FilteredBlock)
-
-				/*err = protolator.DeepMarshalJSON(os.Stdout, t.FilteredBlock)
-				if err != nil {
-					return errors.WithMessage(err, "  Error pretty printing filtered block")
-				}*/
-				//return nil
 		}	
 	}
 
@@ -253,20 +231,18 @@ func(grpc *GRPCClient) ReadEventStream() error{
 
 func ReadConfigs() error {
 
-	fmt.Println("Read Configs ")
+	//ROOT := os.Getenv("GOPATH")
+
+	ROOT := "/home/harald/go/src/github.com/"
 
 	configFile, err := os.Open("config.json")
-
 	if err != nil {
 		return errors.WithMessage(err, "failed to read config json")
 	}
-
-	fmt.Println("Successfully Opened Config File")
-
 	defer configFile.Close()
 
-	byteValue, _ := ioutil.ReadAll(configFile)
 
+	byteValue, _ := ioutil.ReadAll(configFile)
 	var configs map[string]interface{}
 	json.Unmarshal([]byte(byteValue), &configs)
 
@@ -281,17 +257,18 @@ func ReadConfigs() error {
 	channel_id = fmt.Sprint(configs["channel_id"])
 	config_file = fmt.Sprint(configs["config_file"])
 
-	fmt.Println("**** Configs **** ")
-	fmt.Println(configs["fabric_cfg_path"])
-	fmt.Println(configs["msp_id"])
-	fmt.Println(configs["msp_type"])
-	fmt.Println(msp_config_dir)
-	fmt.Println(client_key)
-	fmt.Println(client_cert)
-	fmt.Println(root_cert)
-	fmt.Println(configs["server"])
-	fmt.Println(configs["channel_id"])
-	fmt.Println(configs["config_file"])
+	fmt.Println(" ### Configs ")
+	fmt.Println(" ROOT = ", ROOT)
+	fmt.Println(" FABRIC_CFG_PATH = ",configs["fabric_cfg_path"])
+	fmt.Println(" MSP ID = ",configs["msp_id"])
+	fmt.Println(" MSP TYPE = ",configs["msp_type"])
+	fmt.Println(" MSP CONFIG DIR = ",configs["msp_config_dir"])
+	fmt.Println(" CLIENT KEY = ",configs["client_key"])
+	fmt.Println(" CLIENT CERT = ",configs["client_cert"])
+	fmt.Println(" ROOT CERT = ",configs["root_cert"])
+	fmt.Println(" GRPC LISTENING SERVER = ",configs["server"])
+	fmt.Println(" CHANNEL ID = ",configs["channel_id"])
+	fmt.Println(" CONFIG FILE = ",configs["config_file"])
 
 	return nil
 }

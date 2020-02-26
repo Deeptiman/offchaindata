@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"encoding/json"
-	//"github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/hyperledger/fabric/protos/common"
 	"github.com/hyperledger/fabric/protos/peer"
 	"github.com/hyperledger/fabric-sdk-go/third_party/github.com/hyperledger/fabric/protos/ledger/rwset/kvrwset"
@@ -14,7 +12,12 @@ import (
 
 func ReadBlock(block *common.Block) error{
 
+	fmt.Println("\n ######################################################################## ")
+
+	blockHeader := block.Header
 	blockData := block.Data.Data
+
+	fmt.Println(" Received Block Number = ", blockHeader.Number)
 
 	//First Get the Envelope from the BlockData
 	envelope, err := GetEnvelopeFromBlock(blockData[0])
@@ -54,16 +57,17 @@ func ReadBlock(block *common.Block) error{
 		return  errors.WithMessage(err,"unmarshaling Chaincode Proposal Payload Input error: ")
 	}
 
-	fmt.Println("Chaincode Name === "+input.ChaincodeSpec.ChaincodeId.Name)
-
 	chaincodeArgs := make([]string, len(input.ChaincodeSpec.Input.Args))
-
 	for i, c := range input.ChaincodeSpec.Input.Args {
 		args := CToGoString(c[:])
 		chaincodeArgs[i] = args
 	}
 
-	fmt.Println("Chaicode Args = ", chaincodeArgs)
+	fmt.Println("\n ## Chaincode ")
+	fmt.Println(" Name : ", input.ChaincodeSpec.ChaincodeId.Name)
+	fmt.Println(" Version : ", input.ChaincodeSpec.ChaincodeId.Version)
+	fmt.Println(" Args : ", chaincodeArgs)
+
 
 	proposalResponsePayload	:= &peer.ProposalResponsePayload{}
 	err = proto.Unmarshal(chaincodeActionPayload.Action.ProposalResponsePayload, proposalResponsePayload)
@@ -91,33 +95,26 @@ func ReadBlock(block *common.Block) error{
 		return errors.WithMessage(err,"unmarshaling kvrwset error: ")
 	}
 
-	if len(kvrwset.Reads) != 0 {
-		
-		fmt.Println("BlockNum = ",kvrwset.Reads[0].Version.BlockNum)
-		fmt.Println("TxNum = ",kvrwset.Reads[0].Version.TxNum)
-		fmt.Println("KVRead Key = ",kvrwset.Reads[0].Key)
-		//fmt.Println("KVRead Value = ",kvrwset.Reads[0].Value)
+	fmt.Println("\n Block Read Write Set ")
+	if len(kvrwset.Reads) != 0 {		
+		fmt.Println("\n ## KVRead Set ")
+		fmt.Println(" BlockNum = ",kvrwset.Reads[0].Version.BlockNum)
+		fmt.Println(" TxNum = ",kvrwset.Reads[0].Version.TxNum)
+		fmt.Println(" Key = ",kvrwset.Reads[0].Key)
 	}
 
 	if len(kvrwset.Writes) != 0 {
 
-		args := CToGoString(kvrwset.Writes[0].Value[:])
+		values := CToGoString(kvrwset.Writes[0].Value[:])
 
-		fmt.Println("KVWrite Key = ",kvrwset.Writes[0].Key)
-		fmt.Println("KVWrite Value = ",args)
+		fmt.Println("\n ## KVWrite Set")
+		fmt.Println(" Key = ",kvrwset.Writes[0].Key)
+		fmt.Println(" Value = ",values)
 
-		User := &SampleUser{}
-		err = json.Unmarshal(kvrwset.Writes[0].Value, User)
-		if err != nil{
-			return errors.WithMessage(err,"unmarshaling write set error: ")
+		err = SaveToCouchDB(kvrwset.Writes[0].Value)
+		if err != nil {
+			return errors.WithMessage(err,"error while saving to CouchDB")
 		}
-
-		fmt.Println("Email  = "+User.Email)
-		fmt.Println("Name = "+User.Name)
-		fmt.Println("Age = "+User.Age)
-		fmt.Println("Country = "+User.Country)
-
-		SaveToCouchDB(kvrwset.Writes[0].Value)
 	}
 
 

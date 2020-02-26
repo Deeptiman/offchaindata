@@ -11,19 +11,20 @@ import (
 
 func SaveToCouchDB(kvWriteSet []byte) error{
 
-	fmt.Println("Saving to CouchDB")
-	client, err := kivik.New("couch", "http://localhost:5990/")	
+	dbName := "offchaindb"
+	couchdbUrl := "http://localhost:5990/"
 
+	fmt.Println("\n Saving the Block details to CouchDB")
+	fmt.Println(" CouchDB URL = ", couchdbUrl)
+	fmt.Println(" DB Name = ", dbName)
+
+	client, err := kivik.New("couch", couchdbUrl)	
 	if err != nil {
 		fmt.Println("failed to set couchdb - "+err.Error())
 		return errors.WithMessage(err,"failed to set couchdb: ")
 	}
 
-	db := client.DB(context.TODO(), "offchaindb")
-
-	/*if err != nil {
-		return errors.WithMessage(err,"failed to create database: ")
-	}*/
+	db := client.DB(context.TODO(), dbName)
 
 	User := &SampleUser{}
 	err = json.Unmarshal(kvWriteSet, User)
@@ -31,13 +32,16 @@ func SaveToCouchDB(kvWriteSet []byte) error{
 		return errors.WithMessage(err,"unmarshaling write set error: ")
 	}
 
+	fmt.Println("\n Collection Key ", User.Email)
+
 	rev, err := db.Put(context.TODO(), User.Email, User)
 	if err != nil {
-		fmt.Println("user insertion error - "+err.Error())
-		return errors.WithMessage(err,"user insertion error: ")
+		fmt.Println(" Error during insertion - "+err.Error())
+	} else {
+		fmt.Println(" User Inserted into CouchDB - Revision = "+rev+" \n")
 	}
-
-	fmt.Println("User Inserted into CouchDB %s ",rev)
+	
+	fmt.Println(" ######################################################################## \n")
 
 	return nil
 }
