@@ -10,7 +10,3 @@ go get -v github.com/syndtr/goleveldb/leveldb/util
 go get -v github.com/tedsuo/ifrit
 go get -v github.com/willf/bitset
 go get -v golang.org/x/sync/semaphore
-<<<<<<< HEAD
-
-=======
->>>>>>> 30861862dfb5c84d3332f1502de8aa723bc95de6
