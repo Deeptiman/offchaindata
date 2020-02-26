@@ -8,8 +8,12 @@
 client. </p>
 
 ````````````````````````````````````````````````````````````````````````````````````````````````````````````
+export FABRIC_CFG_PATH= /home/user/go/src/github.com/exampleledger/fixtures
+````````````````````````````````````````````````````````````````````````````````````````````````````````````
+
+````````````````````````````````````````````````````````````````````````````````````````````````````````````
        {
-            "fabric_cfg_path": "exampleledger/fixtures/crypto-config/peerOrganizations/",
+            "peer_config_path": "exampleledger/fixtures/crypto-config/peerOrganizations/",
             "msp_id": "Org1MSP",
             "msp_type": "bccsp",    
             "msp_config_dir": "org1.example.ledger.com/users/Admin@org1.example.ledger.com/msp",
