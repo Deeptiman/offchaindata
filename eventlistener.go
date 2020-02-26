@@ -27,7 +27,7 @@ type DeliveryClient interface {
 }
 
 type GRPCClient struct {
-	grpcClient 			*comm.GRPCClient
+	grpcClient 		*comm.GRPCClient
 	grpcClientConn		*grpc.ClientConn
 	deliveryClient 		DeliveryClient
 	signer      		crypto.LocalSigner
@@ -36,15 +36,15 @@ type GRPCClient struct {
 
 var (
 	fabric_cfg_path 	string
-	msp_id 				string
-	msp_type 			string
+	msp_id 			string
+	msp_type 		string
 	msp_config_dir 		string
-	client_key 			string
+	client_key 		string
 	client_cert 		string
-	root_cert 			string
-	server 				string
-	channel_id 			string
-	config_file			string	
+	root_cert 		string
+	server 			string
+	channel_id 		string
+	config_file		string	
 )
 
 func InitClientConfigs() (comm.ClientConfig,error) {
