@@ -1,0 +1,81 @@
+<h1>offchaindata</h1>
+<p><a href="https://www.hyperledger.org/projects/fabric"><img src="https://www.hyperledger.org/wp-content/uploads/2016/09/logo_hl_new.png" alt="N|Solid"></a></p>
+<p><b>offchaindata</b> is a sample demonstration to understand the concept of implmenting offchain storage and it's capability in Hyperledger fabric Blockchain network.
+ So, this project will work as a peer block event listener and will store the block details in the couchdb. The couchdb collections can be query through Mapreduce.</p>
+ 
+ <h2>Configuration requirements</h2>
+ <p>You need to add the certain project details in `config.json`, so that it will be used to create an event listener and the Blocks will be received through <b>GRPC</b> delivery
+client. </p>
+
+````````````````````````````````````````````````````````````````````````````````````````````````````````````
+       {
+            "fabric_cfg_path": "exampleledger/fixtures/crypto-config/peerOrganizations/",
+            "msp_id": "Org1MSP",
+            "msp_type": "bccsp",    
+            "msp_config_dir": "org1.example.ledger.com/users/Admin@org1.example.ledger.com/msp",
+            "client_key": "org1.example.ledger.com/peers/peer0.org1.example.ledger.com/tls/server.key",
+            "client_cert": "org1.example.ledger.com/peers/peer0.org1.example.ledger.com/tls/server.crt",
+            "root_cert": "org1.example.ledger.com/peers/peer0.org1.example.ledger.com/tls/ca.crt",
+            "server": "peer0.org1.example.ledger.com:7051",
+            "channel_id": "exampleledger",
+            "config_file": "configtx"
+       }
+`````````````````````````````````````````````````````````````````````````````````````````````````````````````````
+
+<h2>Create CouchDB local instance </h2>
+
+The CouchDB local instance can be created using Docker.
+```````````````````````````````````````````````````````````````````````````````````````````````````````````````
+docker run --publish 5990:5984 --detach --name offchaindb hyperledger/fabric-couchdb
+docker start offchaindb
+`````````````````````````````````````````````````````````````````````````````````````````````````````````````````
+
+<h2> Mock Chaincode Model</h2>
+I have followed a sample user model to create the offchaindb. You can also create your own chaincode model and the offchaindata
+will listen the `KVWriteSet` to store in the couchdb.
+
+<b>Sample Model</b>
+``````````````````````````````````````````````````````````````````````````````````````````````````````````````````
+type SampleUser struct {
+	Email 	  string 		`json:"email"`	
+	Name 	    string 		`json:"name"`
+	Age		    string		`json:"age"`
+	Country   string		`json:"country"`
+ }
+``````````````````````````````````````````````````````````````````````````````````````````````````````````````````
+
+<h2>Configure MapReduce</h2>
+
+<p><b>MapReduce</b> will query the offchain data from `CouchDB`. So, you need to configure MapReduce for certain design element from CouchDB collection.</p>
+
+<b>Configure MapReduce for Email</b>
+````````````````````````````````````````````````````````````````````````````````````````````````````````````````
+curl -X PUT http://127.0.0.1:5990/offchaindb/_design/emailviewdesign/ -d '{"views":{"emailview":{"map":"function(doc) { emit(doc.email,1);}", "reduce":"function (keys, values, combine) {return sum(values)}"}}}' -H 'Content-Type:application/json'
+````````````````````````````````````````````````````````````````````````````````````````````````````````````````
+
+<b>Query `Reduce` function to count total email</b>
+```````````````````````````````````````````````````````````````````````````````````````````````````````````````
+curl -X GET http://127.0.0.1:5990/offchaindb/_design/emailviewdesign/_view/emailview?reduce=true
+```````````````````````````````````````````````````````````````````````````````````````````````````````````````
+Output 
+```````````````````````````````````````````````````````````````````````````````````````````````````````````````
+{"rows":[
+		{"key":null,"value":7}
+	]}
+```````````````````````````````````````````````````````````````````````````````````````````````````````````````
+
+<b>Query `Map` function to list all emails</b>
+```````````````````````````````````````````````````````````````````````````````````````````````````````````````
+{"rows":[
+		{"key":"alice@gmail.com","value":1},
+		{"key":"john@gmail.com","value":1},
+		{"key":"michale@gmail.com","value":1},
+		{"key":"mark@mail.com","value":1},
+		{"key":"bob@gmail.com","value":1},
+		{"key":"oscar@gmail.com","value":1},
+		{"key":"william@example.com","value":1}
+	]}
+```````````````````````````````````````````````````````````````````````````````````````````````````````````````
+
+So, all the query peformed in offchain without querying from blockchain ledger.
+
