@@ -244,7 +244,7 @@ func ReadConfigs() error {
 	var configs map[string]interface{}
 	json.Unmarshal([]byte(byteValue), &configs)
 
-	fabric_cfg_path = ROOT + fmt.Sprint(configs["fabric_cfg_path"])
+	peer_config_path = ROOT + fmt.Sprint(configs["peer_config_path"])
 	msp_id = fmt.Sprint(configs["msp_id"])
 	msp_type = fmt.Sprint(configs["msp_type"])
 	msp_config_dir = fabric_cfg_path + fmt.Sprint(configs["msp_config_dir"])
@@ -257,7 +257,7 @@ func ReadConfigs() error {
 
 	fmt.Println(" ### Configs ")
 	fmt.Println(" ROOT = ", ROOT)
-	fmt.Println(" FABRIC_CFG_PATH = ",configs["fabric_cfg_path"])
+	fmt.Println(" PEER_CONFIG_PATH = ",configs["peer_config_path"])
 	fmt.Println(" MSP ID = ",configs["msp_id"])
 	fmt.Println(" MSP TYPE = ",configs["msp_type"])
 	fmt.Println(" MSP CONFIG DIR = ",configs["msp_config_dir"])
