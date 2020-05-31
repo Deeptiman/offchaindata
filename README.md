@@ -93,3 +93,5 @@ curl -X GET http://127.0.0.1:5990/offchaindb/_design/emailviewdesign/_view/email
 
 So, all the query peformed in offchain without querying from blockchain ledger.
 
+<h2>License</h2>
+<p>This project is licensed under the <a href="https://github.com/Deeptiman/offchaindata/blob/master/LICENSE">MIT License</a></p>
