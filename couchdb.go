@@ -24,7 +24,7 @@ func SaveToCouchDB(kvWriteSet []byte) error{
 		return errors.WithMessage(err,"failed to set couchdb: ")
 	}
 
-	db := client.DB(context.TODO(), dbName)
+	db := client.DB(dbName)
 
 	User := &SampleUser{}
 	err = json.Unmarshal(kvWriteSet, User)

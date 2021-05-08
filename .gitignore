@@ -1,2 +1,4 @@
 vendor
 offchaindata
+go.mod
+go.sum

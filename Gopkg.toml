@@ -1,5 +1,0 @@
-[[constraint]]
-  # Release v1.0.0-alpha4
-  name = "github.com/hyperledger/fabric-sdk-go"
-  #revision = "a906355f73d060d7bf95874a9e90dc17589edbb3"
-  revision  = "e00befbefdb6deb06b59a697c42e0f3147c91b7e"
